@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  maptiler:
+    image: maptiler/server:latest
+    container_name: maptiler-server
+    restart: unless-stopped
+    ports:
+      - "10.0.0.1:8280:8080"
+    environment:
+      # MapTiler Server configuration
+      - MAPTILER_LICENSE_KEY=${MAPTILER_LICENSE_KEY:-}
+      - MAPTILER_HOST=0.0.0.0
+      - MAPTILER_PORT=8080
+      # Optional: Set log level (debug, info, warn, error)
+      - MAPTILER_LOG_LEVEL=info
+    volumes:
+      # Main tile storage - your /mnt/pool/gis directory
+      - /mnt/pool/gis:/data
+      # Optional: Custom styles directory
+      - ./styles:/styles:ro
+      # Optional: Configuration persistence
+      - ./config:/config
+      # Cache directory for better performance
+      - maptiler-cache:/cache
+    networks:
+      - maptiler-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  maptiler-network:
+    name: maptiler_net
+    driver: bridge
+
+volumes:
+  maptiler-cache:
+    driver: local
