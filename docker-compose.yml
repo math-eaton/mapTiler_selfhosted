@@ -1,32 +1,33 @@
-version: '3.8'
-
 services:
   maptiler:
     image: maptiler/server:latest
     container_name: maptiler-server
     restart: unless-stopped
     ports:
-      - "10.0.0.1:8280:8080"
+      - "${HOST_IP:-10.0.0.1}:${MAPTILER_PORT:-3650}:3650"
     environment:
       # MapTiler Server configuration
-      - MAPTILER_LICENSE_KEY=${MAPTILER_LICENSE_KEY:-}
-      - MAPTILER_HOST=0.0.0.0
-      - MAPTILER_PORT=8080
-      # Optional: Set log level (debug, info, warn, error)
-      - MAPTILER_LOG_LEVEL=info
+      - MAPTILER_LICENSE_KEY=${MAPTILER_LICENSE_KEY}
+      # Note: Admin password cannot be set via environment variable
+      # It's generated on first run (check logs) or set via admin UI
+      # Log level: debug, info, warn, error
+      - MAPTILER_LOG_LEVEL=${MAPTILER_LOG_LEVEL:-info}
+      # Timezone
+      - TZ=${TZ:-UTC}
+      # User/Group IDs for proper file permissions
+      - PUID=${PUID:-501}
+      - PGID=${PGID:-501}
     volumes:
-      # Main tile storage - your /mnt/pool/gis directory
-      - /mnt/pool/gis:/data
-      # Optional: Custom styles directory
-      - ./styles:/styles:ro
-      # Optional: Configuration persistence
-      - ./config:/config
+      # MapTiler Server working directory - contains MBTiles, maps, fonts, config
+      # All .mbtiles files should be directly in this directory
+      - ${DATA_PATH:-/mnt/pool/gis/data}:/data
+      - ${CONFIG_PATH:-./config}:/config
       # Cache directory for better performance
       - maptiler-cache:/cache
     networks:
       - maptiler-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3650"]
       interval: 30s
       timeout: 10s
       retries: 3

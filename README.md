@@ -60,10 +60,10 @@ docker-compose ps
 
 ### 4. Access the Server
 
-- Web UI: http://10.0.0.1:8280
-- Health check: http://10.0.0.1:8280/health
+- Web UI: http://10.0.0.1:3650
+- Health check: http://10.0.0.1:3650/health
 
-**Note:** Port 8280 is used to avoid conflicts with other services (qBittorrent uses 8080)
+**Note:** Port 3650 is used to avoid conflicts with other services (qBittorrent uses 8080)
 
 ## Tile Storage
 
@@ -210,7 +210,7 @@ services:
 
 1. Check logs: `docker-compose logs`
 2. Verify license key in `.env`
-3. Check port 8280 isn't in use: `sudo lsof -i :8280`
+3. Check port 3650 isn't in use: `sudo lsof -i :3650`
 
 ### Tiles not appearing
 
@@ -233,12 +233,12 @@ chmod -R 755 /mnt/pool/gis
 
 `/srv/mapTiles` project can consume tiles from this server:
 
-1. Update tile URLs in JavaScript to point to `http://10.0.0.1:8280`
+1. Update tile URLs in JavaScript to point to `http://10.0.0.1:3650`
 2. Or use nginx reverse proxy to serve both projects together
 
 ## Port Assignment
 
-MapTiler uses port **8280** (bound to 10.0.0.1) to avoid conflicts with:
+MapTiler uses port **3650** (bound to 10.0.0.1) to avoid conflicts with:
 - qBittorrent (8080)
 - Prowlarr (9696)
 - Sonarr (8989)
@@ -246,7 +246,7 @@ MapTiler uses port **8280** (bound to 10.0.0.1) to avoid conflicts with:
 - Lidarr (8686)
 - Other media stack services
 
-Access from local network: `http://10.0.0.1:8280`
+Access from local network: `http://10.0.0.1:3650`
 
 ## Security Considerations
 
@@ -260,7 +260,7 @@ Access from local network: `http://10.0.0.1:8280`
 2. **Firewall rules**:
    ```bash
    # Allow only from specific IP range
-   sudo ufw allow from 192.168.1.0/24 to any port 8280
+   sudo ufw allow from 192.168.1.0/24 to any port 3650
    ```
 
 3. **Environment variables**:
